@@ -2,10 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import * as mongoose from "mongoose";
 
 import { configs } from "./configs";
-import { ApiError } from "./errors";
-import { User } from "./models";
-import { IUser } from "./types";
-import { UserValidator } from "./validators";
+import { userRouter } from "./routers";
 
 const app = express();
 
@@ -14,92 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // CRUD - create, read, update, delete
 
-app.get(
-  "/users",
-  async (_req: Request, res: Response): Promise<Response<IUser[]>> => {
-    try {
-      const users = await User.find().select("-password");
-
-      return res.json(users);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-);
-
-app.get(
-  "/users/:id",
-  async (req: Request, res: Response): Promise<Response<IUser>> => {
-    try {
-      const user = await User.findById(req.params.id);
-
-      return res.json(user);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-);
-
-app.post(
-  "/users",
-  async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<IUser>> => {
-    try {
-      const { error, value } = UserValidator.create.validate(req.body);
-      if (error) {
-        throw new ApiError(error.message, 400);
-      }
-      const createdUser = await User.create(value);
-
-      return res.status(201).json(createdUser);
-    } catch (e) {
-      next(e);
-    }
-  }
-);
-
-app.put(
-  "/users/:id",
-  async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<IUser>> => {
-    try {
-      const { id } = req.params;
-      const { error, value } = UserValidator.update.validate(req.body);
-      if (error) {
-        throw new ApiError(error.message, 400);
-      }
-      const updatedUser = await User.findOneAndUpdate(
-        { _id: id },
-        { ...value },
-        { returnDocument: "after" }
-      );
-
-      return res.status(200).json(updatedUser);
-    } catch (e) {
-      next(e);
-    }
-  }
-);
-
-app.delete(
-  "/users/:id",
-  async (req: Request, res: Response): Promise<Response<void>> => {
-    try {
-      const { id } = req.params;
-      await User.deleteOne({ _id: id });
-
-      return res.sendStatus(200);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-);
+app.use("/users", userRouter);
 app.use((error: any, _req: Request, res: Response, _next: NextFunction) => {
   const status = error.status || 500;
   return res.status(status).json(error.message);
