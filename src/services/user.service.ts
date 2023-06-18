@@ -1,4 +1,5 @@
 import { User } from "../models";
+import { userRepository } from "../repositories";
 import { IUser } from "../types";
 
 class UserService {
@@ -6,10 +7,10 @@ class UserService {
     return await User.find().select("-password");
   }
   public async create(data: IUser): Promise<IUser> {
-    return await User.create({ ...data });
+    return await userRepository.create(data);
   }
-  public async findById(data: IUser): Promise<IUser> {
-    return await User.findById({ ...data });
+  public async findById(id: string): Promise<IUser> {
+    return await User.findById(id);
   }
 }
 

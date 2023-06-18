@@ -25,11 +25,7 @@ class UserController {
     next: NextFunction
   ): Promise<Response<IUser[]>> {
     try {
-      const { error, value } = UserValidator.create.validate(req.body);
-      if (error) {
-        throw new ApiError(error.message, 400);
-      }
-      const createdUser = await userService.create(value);
+      const createdUser = await userService.create(req.res.locals as IUser);
 
       return res.status(201).json(createdUser);
     } catch (e) {
@@ -41,7 +37,7 @@ class UserController {
     res: Response
   ): Promise<Response<IUser[]>> {
     try {
-      const user = await User.findById(req.params.id);
+      const user = await userService.findById(req.params.id);
 
       return res.json(user);
     } catch (e) {
