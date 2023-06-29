@@ -1,22 +1,20 @@
 import { NextFunction, Request, Response } from "express";
 
-import { ApiError } from "../errors";
-import { User } from "../models";
 import { userService } from "../services";
 import { IUser } from "../types";
-import { UserValidator } from "../validators";
 
 class UserController {
   public async findAll(
     _req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<Response<IUser[]>> {
     try {
       const users = await userService.findAll();
 
       return res.json(users);
     } catch (e) {
-      console.log(e);
+      next(e);
     }
   }
   public async create(
@@ -34,14 +32,16 @@ class UserController {
   }
   public async findById(
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<Response<IUser[]>> {
     try {
-      const user = await userService.findById(req.params.id);
+      const { userId } = req.params;
+      const user = await userService.findById(userId);
 
       return res.json(user);
     } catch (e) {
-      console.log(e);
+      next(e);
     }
   }
   public async updateById(
@@ -50,16 +50,9 @@ class UserController {
     next: NextFunction
   ): Promise<Response<IUser[]>> {
     try {
-      const { id } = req.params;
-      const { error, value } = UserValidator.update.validate(req.body);
-      if (error) {
-        throw new ApiError(error.message, 400);
-      }
-      const updatedUser = await User.findOneAndUpdate(
-        { _id: id },
-        { ...value },
-        { returnDocument: "after" }
-      );
+      const { userId } = req.params;
+
+      const updatedUser = await userService.updateById(userId, req.body);
 
       return res.status(200).json(updatedUser);
     } catch (e) {
@@ -68,15 +61,17 @@ class UserController {
   }
   public async deleteById(
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<Response<void>> {
     try {
-      const { id } = req.params;
-      await User.deleteOne({ _id: id });
+      const { userId } = req.params;
 
-      return res.sendStatus(200);
+      await userService.deleteById(userId);
+
+      return res.sendStatus(204);
     } catch (e) {
-      console.log(e);
+      next(e);
     }
   }
 }
