@@ -17,24 +17,12 @@ class UserController {
       next(e);
     }
   }
-  public async create(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<IUser[]>> {
-    try {
-      const createdUser = await userService.create(req.res.locals as IUser);
 
-      return res.status(201).json(createdUser);
-    } catch (e) {
-      next(e);
-    }
-  }
   public async findById(
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<Response<IUser[]>> {
+  ): Promise<Response<IUser>> {
     try {
       const { userId } = req.params;
       const user = await userService.findById(userId);
@@ -48,7 +36,7 @@ class UserController {
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<Response<IUser[]>> {
+  ): Promise<Response<IUser>> {
     try {
       const { userId } = req.params;
 

@@ -16,7 +16,7 @@ class UserService {
     return await this.getOneByIdOrThrow(id);
   }
 
-  public async updateById(userId: string, dto: Partial<IUser>) {
+  public async updateById(userId: string, dto: Partial<IUser>): Promise<IUser> {
     await this.getOneByIdOrThrow(userId);
 
     return await User.findOneAndUpdate(
