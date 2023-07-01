@@ -49,6 +49,8 @@ class EmailService {
   ) {
     const { templateName, subject } = allTemplates[emailAction];
 
+    context.frontUrl = configs.FRONT_URL;
+
     const mailOptions = {
       to: email,
       subject,
@@ -56,7 +58,7 @@ class EmailService {
       context,
     };
 
-    return this.transporter.sendMail(mailOptions);
+    return await this.transporter.sendMail(mailOptions);
   }
 }
 
